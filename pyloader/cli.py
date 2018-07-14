@@ -1,6 +1,6 @@
 from __future__ import absolute_import, division, print_function
-import signal
-import sys
+# import signal
+# import sys
 import os
 import logging
 import click
@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 _DEBUG = False
 
 
+'''
 def sig_handler(signum, stack):
     if signum in [1, 2, 3, 15]:
         logger.warning('Caught signal %s, exiting.', str(signum))
@@ -30,10 +31,11 @@ def set_sig_handler(funcname, avoid=['SIG_DFL', 'SIGSTOP', 'SIGKILL']):
         except (OSError, RuntimeError, ValueError) as m:  # OSError for Python3, RuntimeError for 2
             logger.warning("Skipping {} {}".format(i, m))
 
-
+'''
 @click.command()
 @click.argument('url')
-def main(url):
+@click.argument('path')
+def main(url, path):
     if _DEBUG:
         logging.basicConfig(level=logging.DEBUG,
                             format='%(name)10s | %(levelname)-7s | %(funcName)15s() | %(threadName)-10s | %(message)s', )
@@ -42,11 +44,11 @@ def main(url):
                             format='%(name)10s | %(levelname)-7s | %(funcName)15s() | %(threadName)-10s | %(message)s', )
 
     # logger.info("Loaded [" + MD.__name__ + "] from [" + MD.__file__ + "]")
-    set_sig_handler(sig_handler)
-    parse_uri(url)
+#    set_sig_handler(sig_handler)
+    parse_uri(url, path)
 
 
-def parse_uri(url, path="./target"):
+def parse_uri(url, path):
     logging.getLogger("urllib3").setLevel(logging.INFO)
     host = urllib3.get_host(url)
     logger.info(host)
@@ -57,27 +59,22 @@ def parse_uri(url, path="./target"):
 
     req = pool.request("GET", url, timeout=2.5)
     if req.status == 200:
-        #logging.info("Make directory %s" % path)
+        logging.info("Make directory %s" % path)
         try:
-            os.mkdir(path)
+            os.mkdir(os.path.join(os.path.curdir, path))
         except Exception as e:
             logger.warning(str(e))
         parse_body(req.data, url, path)
 
 
-def parse_body(data, url, path='./target'):
+def parse_body(data, url, path):
     soup = BeautifulSoup(data, 'html.parser')
     for link in soup.find_all('a'):
         name = link.get('href')
-        if name[-3:] in ('jpg', 'png','bmp','peg','gif'):
+        if name[-3:] in ('jpg', 'png', 'bmp', 'peg', 'gif'):
             logger.info('Image found: {}'.format(name))
             download(url + '/' + name, os.path.join(path, name))
         else:
-            #logger.info("Make directory [%s]" % os.path.join(path, name))
-            try:
-                os.mkdir(os.path.join(path, name))
-            except Exception as e:
-                logger.warning(str(e))
             logger.info("Subpath found, continue parsing tree [%s]" % name)
             parse_uri(url + '/' + name, os.path.join(path, name))
 
