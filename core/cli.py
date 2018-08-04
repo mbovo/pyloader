@@ -60,6 +60,7 @@ def parse_uri(url, path):
     elif host[0] == 'https':
         pool = urllib3.HTTPSConnectionPool(host=host[1], port=host[2], maxsize=10)
 
+    #req = urllib3.HTTPResponse()
     req = pool.request("GET", url, timeout=2.5)
     if req.status == 200:
         logging.info("Make directory %s" % path)
@@ -69,7 +70,7 @@ def parse_uri(url, path):
             logger.warning(str(e))
         parse_body(req.data, url, path)
     else:
-        logger.error("Error while loading page: %s" % repr(req))
+        logger.error("Error while loading page: %s" % str(req.status))
 
 
 def parse_body(data, url, path):
