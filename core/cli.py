@@ -8,6 +8,7 @@ from bs4 import BeautifulSoup
 import urllib3
 import shutil
 
+urllib3.disable_warnings()
 logger = logging.getLogger(__name__)
 _DEBUG = False
 
@@ -32,6 +33,8 @@ def set_sig_handler(funcname, avoid=['SIG_DFL', 'SIGSTOP', 'SIGKILL']):
             logger.warning("Skipping {} {}".format(i, m))
 
 '''
+
+
 @click.command()
 @click.argument('url')
 @click.argument('path')
@@ -65,6 +68,8 @@ def parse_uri(url, path):
         except Exception as e:
             logger.warning(str(e))
         parse_body(req.data, url, path)
+    else:
+        logger.error("Error while loading page: %s" % repr(req))
 
 
 def parse_body(data, url, path):
