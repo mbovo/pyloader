@@ -14,7 +14,7 @@ idna==2.7
 more-itertools==4.2.0
 pep8==1.7.1
 pluggy==0.6.0
-py==1.5.4
+py==1.10.0
 pytest==3.6.3
 pytest-cache==1.0
 pytest-cov==2.5.1
@@ -25,4 +25,4 @@ python-coveralls==2.9.1
 PyYAML>=4.2b1
 requests>=2.20.0
 six==1.11.0
-urllib3==1.24.2
+urllib3==1.25.9
